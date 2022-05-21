@@ -97,7 +97,10 @@ void Sml::dump_config() { ESP_LOGCONFIG(TAG, "SML:"); }
 
 void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_back(listener); }
 
-void Sml::set_error_sensor(sensor::Sensor *sensor) { this->error_sensor = sensor; }
+void Sml::set_error_sensor(sensor::Sensor *sensor) {
+  this->error_sensor = sensor;
+  this->error_sensor.publish_state(0);
+}
 
 bool check_sml_data(const bytes &buffer) {
   if (buffer.size() < 2) {
