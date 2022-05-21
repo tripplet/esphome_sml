@@ -2,7 +2,7 @@ import re
 
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import uart
+from esphome.components import uart, sensor
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@alengwenus"]
@@ -16,18 +16,25 @@ MULTI_CONF = True
 CONF_SML_ID = "sml_id"
 CONF_OBIS_CODE = "obis_code"
 CONF_SERVER_ID = "server_id"
+CONF_ERROR_COUNTER = "error_counter"
 
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(Sml),
+        cv.Optional(CONF_ERROR_COUNTER): cv.use_id(sensor.Sensor),
     }
 ).extend(uart.UART_DEVICE_SCHEMA)
 
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
+
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
+
+    if CONF_ERROR_COUNTER in config:
+        error_counter = await cg.get_variable(config[CONF_ERROR_COUNTER])
+        cg.add(var.set_error_sensor(error_counter))
 
 
 def obis_code(value):

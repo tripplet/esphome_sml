@@ -4,6 +4,7 @@
 #include <vector>
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
+#include "esphome/components/sensor/sensor.h"
 #include "sml_parser.h"
 
 namespace esphome {
@@ -20,9 +21,12 @@ class SmlListener {
 class Sml : public Component, public uart::UARTDevice {
  public:
   void register_sml_listener(SmlListener *listener);
+  void set_error_sensor(sensor::Sensor *sensor);
   void loop() override;
   void dump_config() override;
+
   std::vector<SmlListener *> sml_listeners_{};
+  sensor::Sensor* error_sensor = nullptr;
 
  protected:
   void process_sml_file_(const bytes &sml_data);
@@ -35,6 +39,7 @@ class Sml : public Component, public uart::UARTDevice {
   bool record_ = false;
   uint16_t incoming_mask_ = 0;
   bytes sml_data_;
+  uint32_t error_count = 0;
 };
 
 bool check_sml_data(const bytes &buffer);

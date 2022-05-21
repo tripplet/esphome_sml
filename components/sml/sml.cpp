@@ -40,8 +40,13 @@ void Sml::loop() {
         if (this->record_) {
           this->record_ = false;
 
-          if (!check_sml_data(this->sml_data_))
+          if (!check_sml_data(this->sml_data_)) {
+            if (this->error_sensor) {
+              this->error_count++;
+              error_sensor->publish_state(this->error_count);
+            }
             break;
+          }
 
           // remove footer bytes
           this->sml_data_.resize(this->sml_data_.size() - 8);
@@ -91,6 +96,8 @@ void Sml::publish_value_(const ObisInfo &obis_info) {
 void Sml::dump_config() { ESP_LOGCONFIG(TAG, "SML:"); }
 
 void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_back(listener); }
+
+void Sml::set_error_sensor(sensor::Sensor *sensor) { this->error_sensor = sensor; }
 
 bool check_sml_data(const bytes &buffer) {
   if (buffer.size() < 2) {
