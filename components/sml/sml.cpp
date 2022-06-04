@@ -43,7 +43,7 @@ void Sml::loop() {
           if (!check_sml_data(this->sml_data_)) {
             if (this->error_sensor) {
               this->error_count++;
-              error_sensor->publish_state(this->error_count);
+              this->error_sensor->publish_state(this->error_count);
             }
             break;
           }
@@ -99,7 +99,7 @@ void Sml::register_sml_listener(SmlListener *listener) { sml_listeners_.emplace_
 
 void Sml::set_error_sensor(sensor::Sensor *sensor) {
   this->error_sensor = sensor;
-  this->error_sensor.publish_state(0);
+  this->error_sensor->publish_state(0);
 }
 
 bool check_sml_data(const bytes &buffer) {
